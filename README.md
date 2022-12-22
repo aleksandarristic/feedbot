@@ -51,7 +51,7 @@ Set your configuration in the ```sources.json``` file like so:
         "link": "https://my.blog/latest-entries.html", // Page to scrape for new entries 
         "base": "https://my.blog/posts/", // Base url for individual items; can be an empty string if your items have a full URL
         "date_re": "(?P<d>\\d+)\\. (?P<m>\\d+). (?P<y>\\d+).", // regex to capture date from text; hackity hack 
-        "months": ['јан', 'феб', '...'], // [optional] mapping of months; we want to avoid changing locales to read a 
+        "months": ["јан", "феб", "..."], // [optional] mapping of months; we want to avoid changing locales to read a 
                                          // long month names; instead, just read this list and match values to get the month
       
         "locators": {  // this section describes locators to use with BeautifulSoup4 html parser
