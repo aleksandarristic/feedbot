@@ -1,0 +1,2 @@
+# run bash script to update feeds every 6 hours
+0 */6 * * * /path-to-feedbot/update_feeds.sh > /path-to-feedbot/update_feeds.log

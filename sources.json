@@ -1,0 +1,65 @@
+{
+    "srb_cert": {
+        "name": "SRB CERT Obave\u0161tenja",
+        "lang": "sr",
+        "author": "SRB CERT",
+        "slug": "srb_cert",
+        "link": "https://www.cert.rs/rs/obavestenja.html",
+        "base": "https://www.cert.rs/rs/",
+        "date_re": "(?P<d>\\d+)\\. (?P<m>\\w+) (?P<y>\\d+)",
+        "months": [
+            "Januar",
+            "Februar",
+            "Mart",
+            "April",
+            "Maj",
+            "Jun",
+            "Jul",
+            "Avgust",
+            "Septembar",
+            "Oktobar",
+            "Novembar",
+            "Decembar"
+        ],
+        "locators": {
+            "item": {
+                "name": "div",
+                "attrs": {
+                    "class": "preporuka"
+                }
+            },
+            "item_attribute": "text",
+
+            "title": {
+                "name": "h3",
+                "attrs": {
+                    "class": "title"
+                }
+            },
+            "title_attribute": "text",
+
+            "description": {
+                "name": "h3",
+                "attrs": {
+                    "class": "title"
+                }
+            },
+            "description_attribute": "text",
+
+            "date": {
+                "name": "span",
+                "attrs": {
+                    "class": "date"
+                }
+            },
+            "date_attribute": "text",
+
+            "link": {
+                "name": "a",
+                "attrs": {
+                    "class": "date"
+                }
+            }
+        }
+    }
+}
