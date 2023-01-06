@@ -1,6 +1,6 @@
 # feedbot
 
-A simple python web scraper and rss xml generator.
+A simple python web scraper and rss xml generator. [![CodeQL](https://github.com/aleksandarristic/feedbot/actions/workflows/codeql.yml/badge.svg)](https://github.com/aleksandarristic/feedbot/actions/workflows/codeql.yml)
 
 When I discovered that SRB CERT doesn't have an RSS feed that I could follow, I decided to build this little scraper. I use it on my own server to fetch and parse a page on Serbian CERT, and convert the fetched items to an RSS feed that I serve for my own purposes. Feel free to take a look at the ```sources.json```, I've included the SRB CERT configuration that should work out of the box.
 
