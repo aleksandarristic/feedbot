@@ -16,21 +16,33 @@ def convert_date(date: str, feed_source: dict) -> datetime | None:
     match = re.search(link_re, date)
     if not match:
         return None
-    year = int(match.groupdict()['y'])
-    if link_months:
-        month = link_months.index(match.groupdict()['m']) + 1
-    else:
-        month = int(match.groupdict()['m'])
-
-    day = int(match.groupdict()['d'])
-    return datetime(year=year, day=day, month=month)
+    try:
+        year = int(match.groupdict()['y'])
+        if link_months:
+            m_str = match.groupdict()['m']
+            if m_str not in link_months:
+                return None
+            month = link_months.index(m_str) + 1
+        else:
+            month = int(match.groupdict()['m'])
+        day = int(match.groupdict()['d'])
+        return datetime(year=year, day=day, month=month)
+    except (ValueError, KeyError):
+        return None
 
 
 def build_feed(feed_source: dict) -> str:
-    r = requests.get(feed_source['link'])
-    html_page = r.text
-    parser = BeautifulSoup(html_page, 'html.parser')
+    try:
+        r = requests.get(feed_source['link'], timeout=30)
+        r.raise_for_status()
+    except requests.exceptions.Timeout:
+        print(f"  Timeout fetching {feed_source['link']}")
+        raise
+    except requests.exceptions.RequestException as e:
+        print(f"  Network error fetching {feed_source['link']}: {e}")
+        raise
 
+    parser = BeautifulSoup(r.text, 'html.parser')
     news_items = parser.find_all(**feed_source['locators']['item'])
 
     feed = rfeed.Feed(
@@ -41,13 +53,23 @@ def build_feed(feed_source: dict) -> str:
     )
 
     for news_item in news_items:
-        date = news_item.find(**feed_source['locators']['date']).text
-        description = news_item.find(**feed_source['locators']['description']).text
-        link = feed_source['base'] + news_item.find(**feed_source['locators']['link']).attrs['href']
-        title = news_item.find(**feed_source['locators']['title']).text
+        try:
+            date_el = news_item.find(**feed_source['locators']['date'])
+            desc_el = news_item.find(**feed_source['locators']['description'])
+            link_el = news_item.find(**feed_source['locators']['link'])
+            title_el = news_item.find(**feed_source['locators']['title'])
 
-        if len(title) > 30:
-            title = title[:27] + '...'
+            if not all([date_el, desc_el, link_el, title_el]):
+                print(f"  Skipping item: missing one or more required elements")
+                continue
+
+            date = date_el.text
+            description = desc_el.text
+            link = feed_source['base'] + link_el.attrs['href']
+            title = title_el.text
+        except (AttributeError, KeyError) as e:
+            print(f"  Skipping item due to parse error: {e}")
+            continue
 
         author = feed_source['author']
         feed.items.append(rfeed.Item(
@@ -59,9 +81,7 @@ def build_feed(feed_source: dict) -> str:
             pubDate=convert_date(date, feed_source)
         ))
 
-    rss = feed.rss()
-
-    return rss
+    return feed.rss()
 
 
 if __name__ == '__main__':
@@ -72,6 +92,10 @@ if __name__ == '__main__':
 
     for source_identifier, source_config in SOURCES.items():
         print(f'Building feed for {source_identifier}...')
-        with open(f'{source_identifier}.xml', 'w') as f:
-            f.write(build_feed(source_config))
-        print(f'{source_identifier}.xml written.')
+        try:
+            rss = build_feed(source_config)
+            with open(f'{source_identifier}.xml', 'w') as f:
+                f.write(rss)
+            print(f'{source_identifier}.xml written.')
+        except Exception as e:
+            print(f'  Failed to build feed for {source_identifier}: {e}')
